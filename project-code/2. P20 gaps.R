@@ -40,3 +40,54 @@ names(in.de) <- "Gap count"
 vnr.P20.gap.counts <- cbind(in.de,rbind(vnr.P20.gap.growth[, .(nominal=sum(V1>0),relative=sum(V2>0))],vnr.P20.gap.growth[, .(nominal=sum(V1<0),relative=sum(V2<0))]))
 rm("in.de")
 
+#Chart P20 and non-P20 means
+P20.thresholds.melt <- P20.thresholds.national[,c(3,4,7,34,35)]
+P20.thresholds.melt <- melt(P20.thresholds.melt, id.vars=c(1:3))
+P20.thresholds.melt[P20.thresholds.melt$variable=="p20.mean"]$variable <- "P20"
+P20.thresholds.melt[P20.thresholds.melt$variable=="non.p20.mean"]$variable <- "Rest of population"
+
+y.lab <- "Average daily consumption per capita (2011PPP)"
+dark.grey <- "#A0ADBB"
+DIred <- "#E84439"
+DIgrey <- "#443E42"
+simple_style = theme_bw() +
+  theme(
+    panel.border = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.background = element_blank()
+    ,plot.background = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.line = element_line(colour = "black")
+    ,text = element_text()
+  )
+
+i <- 1
+for (countrycode in vnr.countries){
+  p <- ggplot(subset(P20.thresholds.melt, CountryCode==countrycode),aes(x=RequestYear))+
+    geom_line(aes(y=value, colour=variable),method=loess,se=F, size=1.2)+
+    labs(x=NULL, y=y.lab, colour="")+
+    simple_style+
+    scale_colour_manual(values=c(DIred,DIgrey))+
+    scale_y_continuous(
+      limits = c(0,round(max(subset(P20.thresholds.melt, CountryCode==countrycode)$value, na.rm=T)*1.1,0)),
+      expand = c(0,0))+
+    theme(
+      legend.position="bottom"
+      ,legend.box = "horizontal"
+      ,legend.text = element_text(size=12,color=DIgrey)
+      ,legend.direction="horizontal"
+      ,axis.title.x=element_blank()
+      ,axis.title.y=element_text(size=12,color=DIgrey)
+      ,axis.ticks=element_blank()
+      ,axis.line.y = element_blank()
+      ,axis.line.x = element_line(color=DIgrey, size = 0.8)
+      ,axis.text.y = element_text(size=12,color=DIgrey,margin=margin(t=0,r=0,b=0,l=20))
+      ,axis.text.x = element_text(size=12,color=DIgrey,margin=margin(t=20,r=0,b=0,l=0))
+      ,panel.grid.major.y = element_line(color=dark.grey)
+      ,legend.background = element_rect(fill = "transparent", colour = "transparent")
+      ,legend.key.width = unit(1,"cm")
+    )
+  message(paste0("Saving ",countrycode," (",i,"/",length(vnr.countries),")"))
+  i <- i + 1
+  ggsave(paste0("output/charts/",countrycode,"_p20_gap.png"),p,height=5.83,width=8.27)
+}
