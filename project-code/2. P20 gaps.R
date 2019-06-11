@@ -39,6 +39,7 @@ in.de <- as.data.frame(c("Increasing","Decreasing"))
 names(in.de) <- "Gap count"
 vnr.P20.gap.counts <- cbind(in.de,rbind(vnr.P20.gap.growth[, .(nominal=sum(V1>0),relative=sum(V2>0))],vnr.P20.gap.growth[, .(nominal=sum(V1<0),relative=sum(V2<0))]))
 rm("in.de")
+write.csv(vnr.P20.gap.counts, "output/VNR P20 gap counts.csv", row.names = F)
 
 #Chart P20 and non-P20 means
 P20.thresholds.melt <- P20.thresholds.national[,c(3,4,7,34,35)]
