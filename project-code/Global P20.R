@@ -44,5 +44,6 @@ povcal.national <- function(year.PLs){
 GP20.national <- povcal.national(GP20.thresholds)
 GP20.national.headcounts <- GP20.national[,c(3,4,7,13,21)]
 
-dhsmics.countries <- c()
-GP20.dhsmics.headcounts <- GP20.national.headcounts[GP20.national.headcounts$countryCode %in% dhs.mics.countries]
+write.csv(GP20.national.headcounts,"project-data/GP20 headcounts.csv", row.names = F)
+
+          
