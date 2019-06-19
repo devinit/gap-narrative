@@ -1,18 +1,20 @@
 required.packages <- c("reshape2","ggplot2","data.table","zoo")
 lapply(required.packages, require, character.only=T)
 
-this.dir <- dirname(parent.frame(2)$ofile)
-setwd(this.dir)
-setwd("..")
+setwd("C:/Users/dan-w/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 dhs <- fread("project-data/historical_dhs.csv")
+india <- fread("project-data/India.csv")
 GP20 <- fread("project-data/GP20 headcounts.csv")
 
-dhs.melt <- melt(subset(dhs, type=="statistic"), id.vars=c("filename","variable","p20","iso3","type","survey_year"))
-dhs.melt <- dcast.data.table(dhs.melt, iso3 + p20 + variable ~ survey_year, fun.aggregate = mean)
+dhs <- dhs[iso3 != "IND"]
+dhs <- rbind(dhs, india)
+
+dhs.melt <- melt(subset(dhs, type=="statistic"), id.vars=c("variable","p20","iso3","type","povcal_year","survey_year"))
+dhs.melt <- dcast.data.table(dhs.melt, iso3 + p20 + variable ~ povcal_year)
 
 #Convert to zoo via matrix
-dhs.mat <- zoo(t(dhs.melt[,c(4:15)]))
+dhs.mat <- zoo(t(dhs.melt[,c(4:18)]))
 index(dhs.mat) <- as.numeric(rownames(dhs.mat))
 
 #Fill NAs by interpolation and extension (not extrapolation)
@@ -37,9 +39,9 @@ dhs.dt <- dhs.dt[,(value=sum(value, na.rm=T)/sum(pop)),by=.(variable.1,variable,
 dhs.dt <- melt(dhs.dt, id.vars=c("variable.1","variable","p20"))
 dhs.dt$gp20 <- "P20"
 dhs.dt[which(dhs.dt$p20 == "FALSE")]$gp20 <- "Rest of population"
-dhs.dt <- dcast(dhs.dt, variable.1 + gp20 ~ variable)
+dhs.dt <- dcast.data.table(dhs.dt, variable.1 + gp20 ~ variable)
 
-colnames(dhs.dt) <- c("year","gp20","Under-5 mortality","Birth registration","Stunting")
+colnames(dhs.dt) <- c("year","gp20","Secondary education","Under-5 mortality","Birth registration","Stunting")
 
 write.csv(dhs.dt, "output/DHS gaps analysis.csv")
 
@@ -57,11 +59,11 @@ simple_style = theme_bw() +
     ,text = element_text()
   )
 
-for(var in colnames(dhs.dt[,3:5])){
+for(var in colnames(dhs.dt[,3:6])){
   varen <- as.name(var)
   varen <- enquo(varen)
-  p <- ggplot(dhs.dt,aes(year))+
-    geom_smooth(aes(y=!!varen, colour=gp20),method=loess,se=F, size=1.2)+
+  p <- ggplot(subset(dhs.dt, year >=1990),aes(year))+
+    geom_line(aes(y=!!varen, colour=gp20),method=loess,se=F, size=1.2)+
     labs(x=NULL, y=var, colour="")+
     simple_style+
     scale_colour_manual(values=c(DIred,DIgrey))+
@@ -85,5 +87,5 @@ for(var in colnames(dhs.dt[,3:5])){
       ,legend.background = element_rect(fill = "transparent", colour = "transparent")
       ,legend.key.width = unit(1,"cm")
     )
-  ggsave(paste0("output/",var,".png"))
+  ggsave(paste0("output/",var,"5.png"), width = 8.27, height = 5.83)
 }
