@@ -30,9 +30,10 @@ P20.thresholds.national$p20.income.gap <- P20.thresholds.national$non.p20.mean -
 P20.gap.growth <- P20.thresholds.national[, (coefficients(lm(p20.income.gap~RequestYear))[2]),by=CountryCode]
 P20.gap.growth$V2 <- P20.thresholds.national[, (coefficients(lm(p20.income.gap/Mean~RequestYear))[2]),by=CountryCode]$V1
 
-#VNR countries, excluding those without PovcalNet data: Cambodia, Eritrea, Kuwait, Liechtenstein, Nauru, New Zealand, Oman and Palau 
-vnr.countries <- c("DZA","AZE","BIH","BFA","CMR","CAF","TCD","CHL","COG","CIV","HRV","SLV","SWZ","FJI","GHA","GTM","GUY","ISL","IDN","IRQ","ISR","KAZ","LSO","MRT","MUS","MNG","PAK","PHL","RWA","LCA","SRB","SLE","ZAF","TLS","TON","TUN","TUR","TKM","GBR","TZA","VUT")
+#VNR countries, excluding those without PovcalNet data: Cambodia, Kuwait, Liechtenstein, Nauru, New Zealand, Oman and Palau 
+vnr.countries <- c("DZA","AZE","BIH","BFA","CMR","CAF","TCD","CHL","COG","CIV","HRV","SWZ","FJI","GHA","GTM","GUY","ISL","IDN","IRQ","ISR","KAZ","LSO","MRT","MUS","MNG","PAK","PHL","RWA","LCA","SRB","SLE","ZAF","TLS","TON","TUN","TUR","TKM","GBR","TZA","VUT")
 vnr.P20.gap.growth <- subset(P20.gap.growth, CountryCode %in% vnr.countries)
+write.csv(vnr.P20.gap.growth,"output/VNR p20 gap growth.csv", row.names = F)
 
 #Count VNR countries with increasing or decreasing gaps in nominal and relative terms
 in.de <- as.data.frame(c("Increasing","Decreasing"))
@@ -90,5 +91,5 @@ for (countrycode in vnr.countries){
     )
   message(paste0("Saving ",countrycode," (",i,"/",length(vnr.countries),")"))
   i <- i + 1
-  ggsave(paste0("output/charts/",countrycode,"_p20_gap.png"),p,height=5.83,width=8.27)
+  ggsave(paste0("output/VNR charts/",countrycode,"_p20_gap.png"),p,height=5.83,width=8.27)
 }

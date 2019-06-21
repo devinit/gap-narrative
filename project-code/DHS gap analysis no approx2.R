@@ -69,10 +69,10 @@ dhs.dt$`Birth registration`[which(dhs.dt$year < 1999)] <- NA
 write.csv(dhs.dt, "output/DHS gaps analysis.csv", row.names = F)
 
 dark.grey <- "#A0ADBB"
-DIpurple <- "#893F90"
-DIpurple2 <- "#C189BB"
-DIorange <- "#EB642B"
-DIorange2 <- "#F6BB9D"
+DIred <- "#E84439"
+DIred2 <- "#F8C1B2"
+DIgrey <- "#443E42"
+DIgrey2 <- "#6A6569"
 simple_style = theme_bw() +
   theme(
     panel.border = element_blank()
@@ -91,19 +91,22 @@ for(var in colnames(dhs.dt[,4:7])){
       geom_smooth(aes(y=!!varen, colour=paste(gp20,sex)),method=loess,se=F, size=1.2)+
       labs(x=NULL, y=NULL, colour="")+
       simple_style+
-      scale_colour_manual(values=c(DIpurple2,DIpurple,DIorange2,DIorange))+
+      scale_colour_manual(values=c(DIred,DIred2,DIgrey,DIgrey2))+
       scale_y_continuous(
-        limits = c(round(min(dhs.dt[,..var])*0.7,2),round(max(dhs.dt[,..var])*1.2,2)),
+        limits = c(0,round(max(dhs.dt[,..var])*1.3,2)),
         expand = c(0,0),
         labels = NULL)+
       scale_x_continuous(
         expand = c(0.2,0.2))+
       coord_cartesian(
-        xlim=c(1999,2015)
-        ,expand=T)+
+        xlim=c(2000,2015)
+        ,expand = T)+
       theme(
-        axis.title.x=element_blank()
-        ,legend.position = "none"
+        legend.position="bottom"
+        ,legend.box = "horizontal"
+        ,legend.text = element_text(size=12,color=DIgrey)
+        ,legend.direction="horizontal"
+        ,axis.title.x=element_blank()
         ,axis.title.y=element_text(size=12,color=DIgrey)
         ,axis.ticks=element_blank()
         ,axis.line.y = element_blank()
@@ -111,6 +114,8 @@ for(var in colnames(dhs.dt[,4:7])){
         ,axis.text.y = element_text(size=12,color=DIgrey,margin=margin(t=0,r=0,b=0,l=20))
         ,axis.text.x = element_text(size=12,color=DIgrey,margin=margin(t=20,r=0,b=0,l=0))
         ,panel.grid.major.y = element_line(color=dark.grey)
+        ,legend.background = element_rect(fill = "transparent", colour = "transparent")
+        ,legend.key.width = unit(1,"cm")
       )
-    ggsave(paste0("output/",var," stylised.png"), width = 8.27, height = 5.83)
+    ggsave(paste0("output/",var," combined.png"), width = 8.27, height = 5.83)
   }

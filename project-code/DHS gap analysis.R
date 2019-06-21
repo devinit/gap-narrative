@@ -4,11 +4,7 @@ lapply(required.packages, require, character.only=T)
 setwd("C:/Users/dan-w/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 dhs <- fread("project-data/historical_dhs.csv")
-india <- fread("project-data/India.csv")
 GP20 <- fread("project-data/GP20 headcounts.csv")
-
-dhs <- dhs[iso3 != "IND"]
-dhs <- rbind(dhs, india)
 
 dhs.melt <- melt(subset(dhs, type=="statistic"), id.vars=c("variable","p20","iso3","type","povcal_year","survey_year"))
 dhs.melt <- dcast.data.table(dhs.melt, iso3 + p20 + variable ~ povcal_year)
