@@ -18,7 +18,7 @@ povcal.threshold.global <- function(targetHC,year="all",lowerguess=0, upperguess
   data$diff <- abs(targetHC-data$hc)
   thresholds <- as.data.table(data)
   thresholds <- thresholds[thresholds[, .I[diff == min(diff)], by=.(requestYear)]$V1]
-  #thresholds <- thresholds[thresholds[, .I[povertyLine==min(povertyLine)], by=.(requestYear)]$V1] #This line probably isn't required for global aggregates
+  thresholds <- thresholds[thresholds[, .I[povertyLine==min(povertyLine)], by=.(requestYear)]$V1] #This line probably isn't required for global aggregates
   return(thresholds)
 }
 
