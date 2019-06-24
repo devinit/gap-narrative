@@ -1,7 +1,7 @@
-required.packages <- c("reshape2","ggplot2","data.table","WDI","rgdal","scales")
+required.packages <- c("reshape2","ggplot2","data.table","WDI","rgdal","scales","svglite")
 lapply(required.packages, require, character.only=T)
 
-setwd("C:/Users/danw/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
+setwd("C:/Users/dan-w/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 dhs <- fread("project-data/historical_dhs.csv")
 GP20 <- fread("project-data/GP20 headcounts.csv")
@@ -30,7 +30,7 @@ fwrite(vnr.countries.df, "output/vnr countries data gaps.csv")
 
 ###Map
 world <- readOGR("project-data/world/ne_110m_admin_0_countries.shp")
-world.f <- fortify(world, region='SOV_A3')
+world.f <- fortify(world, region='ADM0_A3')
 world.f$vnrgap <- NA
 world.f$vnrgap[which(world.f$id %in% vnr.countries)] <- -1 
 world.f$vnrgap[which(world.f$id %in% subset(vnr.gaps, V1 >= 0)$CountryCode)] <- 1

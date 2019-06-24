@@ -1,7 +1,7 @@
 required.packages <- c("reshape2","ggplot2","data.table","WDI")
 lapply(required.packages, require, character.only=T)
 
-setwd("C:/Users/dan-w/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
+setwd("C:/Users/danw/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 dhs <- fread("project-data/historical_dhsmf.csv")
 GP20 <- fread("project-data/GP20 headcounts.csv")
