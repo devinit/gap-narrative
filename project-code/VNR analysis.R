@@ -1,7 +1,7 @@
-required.packages <- c("reshape2","ggplot2","data.table","WDI","rgdal","scales","svglite")
+required.packages <- c("reshape2","ggplot2","data.table","WDI","rgdal","scales","svglite","rgeos")
 lapply(required.packages, require, character.only=T)
 
-setwd("C:/Users/dan-w/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
+setwd("C:/Users/danw/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 dhs <- fread("project-data/historical_dhs.csv")
 GP20 <- fread("project-data/GP20 headcounts.csv")
@@ -29,17 +29,30 @@ vnr.countries.df.sums <- colSums(vnr.countries.df[,c(2:5)],na.rm=T)
 fwrite(vnr.countries.df, "output/vnr countries data gaps.csv")
 
 ###Map
-world <- readOGR("project-data/world/ne_110m_admin_0_countries.shp")
-world.f <- fortify(world, region='ADM0_A3')
+world.large <- readOGR("project-data/world/ne_10m_admin_0_countries.shp")
+small.countries <- c("LIE","NRU","PLW","MUS","LCA","TON")
+centres <- gCentroid(world.large, byid=T, id=world.large$ADM0_A3)
+small.centres <- cbind(id=rownames(centres@coords),data.frame(centres@coords))
+small.centres <- subset(small.centres, small.centres$id %in% small.countries)
+small.centres$vnrgap <- -1
+small.centres$vnrgap[which(small.centres$id %in% subset(vnr.gaps, V1 >= 0)$CountryCode)] <- 1
+small.centres$vnrgap[which(small.centres$id %in% subset(vnr.gaps, V1 < 0)$CountryCode)] <- 0
+
+world.small <- readOGR("project-data/world/ne_110m_admin_0_countries.shp")
+world.f <- fortify(world.small, region='ADM0_A3')
 world.f$vnrgap <- NA
 world.f$vnrgap[which(world.f$id %in% vnr.countries)] <- -1 
 world.f$vnrgap[which(world.f$id %in% subset(vnr.gaps, V1 >= 0)$CountryCode)] <- 1
 world.f$vnrgap[which(world.f$id %in% subset(vnr.gaps, V1 < 0)$CountryCode)] <- 0
+
 palbins = c(1,0,-1)
 names(palbins)=c("Increasing","Decreasing","No data")
 colscale <- c("#E84439","#0089CC","#A9A6AA")
-ggplot(world.f)+
-  geom_polygon( aes(x=long,y=lat,group=group,fill=vnrgap,color="#EEEEEE",size=0.1))+
+
+ggplot()+
+  geom_polygon(data=world.f, aes(x=long,y=lat,group=group,fill=vnrgap,size=0.1),color="#EEEEEE")+
+  geom_point(data=small.centres, aes(x=x, y=y, size=1.3),color="#EEEEEE")+
+  geom_point(data=small.centres, aes(x=x, y=y, size=1,color=vnrgap))+
   coord_fixed(1) +
   coord_cartesian() +
   scale_fill_gradientn(
@@ -49,13 +62,20 @@ ggplot(world.f)+
     colors=colscale,
     values=rescale(palbins)
   ) +
-  scale_color_identity()+
+  scale_color_gradientn(
+    na.value="#EEEEEE",
+    guide="none",
+    breaks=palbins,
+    colors=colscale,
+    values=rescale(palbins)
+  ) +
   scale_size_identity()+
   expand_limits(x=world.f$long,y=world.f$lat)+
   theme_classic()+
   theme(axis.line = element_blank(),axis.text=element_blank(),axis.ticks = element_blank())+
   guides(fill=guide_legend(title=""))+
   labs(x="",y="")
+
 ggsave("output/VNR gaps.svg")
 
 no.datas <- setdiff(vnr.countries,vnr.gaps$CountryCode)
