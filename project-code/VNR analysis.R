@@ -1,7 +1,7 @@
 required.packages <- c("reshape2","ggplot2","data.table","WDI","rgdal","scales","svglite","rgeos")
 lapply(required.packages, require, character.only=T)
 
-setwd("C:/VNR checks data")
+setwd("C:/Users/danw/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 dhs <- fread("project-data/historical_dhs.csv")
 GP20 <- fread("project-data/GP20 headcounts.csv")
@@ -97,7 +97,7 @@ fwrite(vnr.gaps[,c("CountryCode","gap")],"output/VNR gaps map data.csv")
 ###Income group analysis
 income.groups <- subset(WDI, iso3c %in% vnr.countries & year == 2011)[,c(5,10)]
 
-if(!("SWZ" %in% iso.name$iso3c)){
+if(!("SWZ" %in% income.groups$iso3c)){
   income.groups <- rbind(income.groups, data.frame(iso3c="SWZ",income="Lower middle income"))
 } #WDI doesn't pick up Eswatini correctly
 

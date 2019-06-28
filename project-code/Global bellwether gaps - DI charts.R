@@ -68,6 +68,14 @@ dhs.dt$`Birth registration`[which(dhs.dt$year < 1999)] <- NA
 
 write.csv(dhs.dt, "output/DHS gaps analysis.csv", row.names = F)
 
+#Gap analysis
+dhs.gaps <- melt(dhs.dt, id.vars=c("year","gp20","sex"))
+dhs.gaps <- dcast.data.table(dhs.gaps, year + sex + variable ~ gp20)
+dhs.gaps$gap <- dhs.gaps$`Rest of population` - dhs.gaps$P20
+dhs.gaps.growth <- dhs.gaps[.(sex != "total", year >= 1999), .(gapgrowth = coefficients(lm(gap ~ year))[2]), by=.(sex,variable)]
+dhs.gaps.change <- merge(dhs.gaps[(sex != "total" & year == 1999), .(gap1990 = gap), by=.(sex,variable)],dhs.gaps[(sex != "total" & year == 2015), .(gap2015 = gap), by=.(sex,variable)])
+dhs.gaps.change$change <- dhs.gaps.change$gap2015-dhs.gaps.change$gap1990
+
 dark.grey <- "#A0ADBB"
 DIred <- "#E84439"
 DIred2 <- "#F8C1B2"
@@ -119,3 +127,5 @@ for(var in colnames(dhs.dt[,4:7])){
       )
     ggsave(paste0("output/",var," combined.png"), width = 8.27, height = 5.83)
   }
+
+
