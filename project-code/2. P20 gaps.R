@@ -2,9 +2,7 @@ required.packages <- c("reshape2","ggplot2","data.table")
 lapply(required.packages, require, character.only=T)
 
 #Source on save first
-this.dir <- dirname(parent.frame(2)$ofile)
-setwd(this.dir)
-setwd("..")
+setwd("C:/Users/danw/Box/Gap Narrative (ITEP), June 2019/git/gap-narrative")
 
 thresholds.national1 <- readRDS("project-data/thresholds1.rds")
 thresholds.national2 <- readRDS("project-data/thresholds2.rds")
